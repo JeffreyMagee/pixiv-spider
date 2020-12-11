@@ -13,7 +13,7 @@ python pixiv.py
 ```
 
 ## Description
-Add function: crawl r18 pictures (daily/weekly)
+Add function: crawl R18 pictures (daily/weekly)
 
 ## References
 [1] https://www.pythonf.cn/read/120617
