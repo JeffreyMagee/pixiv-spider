@@ -14,6 +14,7 @@ python pixiv.py
 
 ## Description
 Add function: crawl R18 pictures (daily/weekly)
+Copy cookie to cookie.txt if you need R18 mode
 
 ## References
 [1] https://www.pythonf.cn/read/120617
