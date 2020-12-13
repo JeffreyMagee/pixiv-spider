@@ -6,7 +6,7 @@ import threading
 import datetime
 
 
-class Pixiv():
+class Pixiv:
 
     def __init__(self, mode, page, r18, cookie):
         assert mode in ['1', '2', '3']
@@ -30,7 +30,7 @@ class Pixiv():
         else:
             mode = 'monthly'
             self.r18 = ''
-        self.url_rank = 'https://www.pixiv.net/ranking.php?mode=' + mode + self.r18   # 排行榜url
+        self.url_rank = 'https://www.pixiv.net/ranking.php?mode=' + mode + self.r18 + 'content=illust'  # 排行榜url
         self.params_rank = {
             'mode': mode + self.r18,  # 榜名，日榜:daily、周榜:weekly、月榜:monthly
             'content': 'illust',  # 搜索类型
@@ -46,27 +46,26 @@ class Pixiv():
             self.params_rank['p'] = str(page + 1)
             self.headers['referer'] += 'mode=' + self.params_rank['mode'] + '&content=' + self.params_rank['content']
 
-            if not self.r18:    # 非r18下载方法
+            if not self.r18:  # 非r18下载方法
                 url_get = requests.get(self.url_rank, headers=self.headers, params=self.params_rank, timeout=5)
                 url_json = json.loads(url_get.text)
                 for dic in url_json['contents']:  # 获取图片id
                     self.list_id.append(dic['illust_id'])
-            else:   # r18下载方法
+            else:  # r18下载方法
                 url = 'https://www.pixiv.net/touch/ajax/ranking/illust?mode=daily_r18&type=all&page=' + str(page + 1)
                 url_get = requests.get(url, headers=self.headers, params=self.params_rank, timeout=5)
                 url_json = json.loads(url_get.text)
                 for dic in url_json['body']['ranking']:
                     self.list_id.append(dic['illustId'])
 
-
     def url_get(self):
         """从id获取url"""
         while True:
-            self.glock.acquire()    # 加锁
+            self.glock.acquire()  # 加锁
             if len(self.list_id) == 0:
-                self.glock.release()    # 释放锁
+                self.glock.release()  # 释放锁
                 break
-            ID = self.list_id.pop(0)    # 提取list_id的第一个元素
+            ID = self.list_id.pop(0)  # 提取list_id的第一个元素
             self.glock.release()
             url_page = 'https://www.pixiv.net/ajax/illust/' + str(ID) + '/pages?lang=zh'
             headers = self.headers
@@ -87,15 +86,14 @@ class Pixiv():
             os.mkdir(str_path)
 
         while True:
-            self.glock.acquire()    # 加锁
+            self.glock.acquire()  # 加锁
             if len(self.list_url) == 0:
                 self.glock.release()
                 break
 
-            url = self.list_url.pop(0)      # 获取list_url的第一个元素
+            url = self.list_url.pop(0)  # 获取list_url的第一个元素
             self.glock.release()
-            path = str_path + '/' + str(self.num) + '.' + url[-3:]  # 文件名创建
-
+            path = str_path + '/' + str(self.num) + url.split('/')[-1]  # 文件名创建
             pixiv_img = requests.get(url, headers=self.headers)
             with open(path, 'wb') as f:
                 f.write(pixiv_img.content)
@@ -104,7 +102,6 @@ class Pixiv():
 
 
 def main():
-
     print('##————Pixiv————##')
     print('##----如需爬取r18图片请确认保存cookie到cookie.txt----##')
 
